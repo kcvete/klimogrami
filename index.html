@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="sl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Klimogrami Amerike — vaja</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Inter:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#fbfcfb; --grid:#e6eef3; --grid-strong:#d4e2ea;
+    --ink:#1b2733; --ink-soft:#5a6b78;
+    --temp:#d6402a; --rain:#3f9fd4; --rain-fill:#7cc1e6;
+    --green:#2f8f5b; --green-bg:#e7f4ec; --wrong:#c8472f; --wrong-bg:#fbece8;
+    --card:#fff; --line:#e1e8ed;
+    --shadow:0 1px 2px rgba(20,40,60,.04),0 8px 24px rgba(20,40,60,.06);
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0;font-family:'Inter',system-ui,sans-serif;color:var(--ink);
+    background-color:var(--paper);
+    background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+    background-size:26px 26px;background-position:-1px -1px;line-height:1.5;-webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:760px;margin:0 auto;padding:20px 16px 64px}
+  header{margin:8px 2px 16px}
+  .eyebrow{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-soft);display:flex;align-items:center;gap:8px}
+  .eyebrow .dot{width:7px;height:7px;border-radius:50%;background:var(--temp)}
+  h1{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:clamp(30px,7vw,46px);line-height:1.02;margin:6px 0 4px;letter-spacing:-.02em}
+  h1 .blue{color:var(--rain)}
+  .lede{color:var(--ink-soft);font-size:15px;max-width:48ch;margin:0}
+  .contbar{display:flex;gap:6px;margin:16px 0 0}
+  .contbar button{
+    flex:1;border:1px solid var(--line);background:#fff;cursor:pointer;border-radius:12px;
+    font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:14.5px;color:var(--ink-soft);
+    padding:11px 8px;transition:.16s;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:var(--shadow);
+  }
+  .contbar button .em{font-size:16px}
+  .contbar button.active{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .contbar button:not(.active):hover{background:#f1f5f8;color:var(--ink)}
+  nav{display:flex;gap:4px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:4px;margin:12px 0 22px;box-shadow:var(--shadow);position:sticky;top:8px;z-index:5}
+  nav button{flex:1;border:0;background:transparent;cursor:pointer;font-family:'Inter',sans-serif;font-weight:600;font-size:13.5px;color:var(--ink-soft);padding:9px 4px;border-radius:10px;transition:.18s;white-space:nowrap}
+  nav button.active{background:var(--ink);color:#fff}
+  nav button:not(.active):hover{background:#f1f5f8;color:var(--ink)}
+  .stage{background:var(--card);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow);overflow:hidden}
+  .stage-head{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid var(--line);font-family:'Space Mono',monospace;font-size:12px;color:var(--ink-soft)}
+  .scoreboard{display:flex;gap:16px;align-items:center}
+  .scoreboard b{color:var(--ink);font-weight:700}
+  .streak{color:var(--temp)}
+  .prompt{padding:16px 18px 4px;font-weight:600;font-size:15px}
+  .prompt span{color:var(--ink-soft);font-weight:500}
+  .figure{padding:6px 14px 14px;display:flex;justify-content:center}
+  .climo-card{width:100%;max-width:430px;background:#fff;border:1px solid var(--grid-strong);border-radius:14px;padding:6px 6px 2px;background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:13px 13px}
+  .climo-card svg{display:block;width:100%;height:auto}
+  .photo-card{width:100%;max-width:430px;border-radius:14px;overflow:hidden;border:1px solid var(--grid-strong);background:#eef3f6;aspect-ratio:4/3}
+  .photo-card svg{display:block;width:100%;height:100%}
+  .photo-card img{display:block;width:100%;height:100%;object-fit:cover}
+  .reveal-name{text-align:center;font-family:'Space Mono',monospace;font-size:12px;color:var(--ink-soft);margin:-4px 0 6px;min-height:16px}
+  .reveal-name b{color:var(--ink)}
+  .options{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:6px 14px 16px}
+  .opt{display:flex;align-items:center;gap:9px;text-align:left;border:1.5px solid var(--line);background:#fff;border-radius:12px;padding:11px 12px;cursor:pointer;font-family:'Inter',sans-serif;font-weight:600;font-size:13px;color:var(--ink);transition:.14s}
+  .opt:hover:not(:disabled){border-color:var(--ink);transform:translateY(-1px)}
+  .opt:disabled{cursor:default}
+  .opt .num{font-family:'Space Mono',monospace;font-size:11px;color:var(--ink-soft);border:1px solid var(--line);border-radius:6px;width:20px;height:20px;display:grid;place-items:center;flex:none}
+  .opt.correct{background:var(--green-bg);border-color:var(--green);color:#1d5e3a}
+  .opt.correct .num{border-color:var(--green);color:var(--green)}
+  .opt.wrong{background:var(--wrong-bg);border-color:var(--wrong);color:#8f2e1c}
+  .opt.wrong .num{border-color:var(--wrong);color:var(--wrong)}
+  .feedback{padding:0 18px;overflow:hidden;max-height:0;transition:max-height .25s ease}
+  .feedback.show{max-height:380px;padding-bottom:6px}
+  .verdict{font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:17px;margin:2px 0 6px}
+  .verdict.ok{color:var(--green)} .verdict.no{color:var(--wrong)}
+  .why{font-size:13.5px;color:var(--ink-soft);margin:0 0 4px}
+  .why b{color:var(--ink)}
+  .stage-foot{padding:12px 18px 18px;display:flex;justify-content:flex-end}
+  .next{border:0;background:var(--ink);color:#fff;font-family:'Inter',sans-serif;font-weight:600;font-size:14px;padding:11px 22px;border-radius:11px;cursor:pointer;transition:.15s;display:inline-flex;align-items:center;gap:8px}
+  .next:hover{background:#000;gap:11px}
+  .next:disabled{opacity:.35;cursor:default}
+  .hintkeys{font-family:'Space Mono',monospace;font-size:11px;color:var(--ink-soft);text-align:center;margin:14px 0 0}
+  .hintkeys kbd{background:#fff;border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:1px 5px;font-family:inherit}
+  .learn{display:flex;flex-direction:column;gap:18px}
+  .lcard{background:var(--card);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);overflow:hidden}
+  .lcard-top{display:flex;flex-wrap:wrap}
+  .lcard .climo-card{border:0;border-radius:0;border-right:1px solid var(--line);flex:1 1 280px;max-width:none;background-color:#fff}
+  .lcard .lphoto{flex:1 1 220px;min-height:200px;position:relative;background:#eef3f6}
+  .lcard .lphoto svg{position:absolute;inset:0;width:100%;height:100%}
+  .lcard .lphoto img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+  .lbody{padding:16px 18px 18px;border-top:1px solid var(--line)}
+  .lname{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:21px;letter-spacing:-.01em;margin:0}
+  .lcity{font-family:'Space Mono',monospace;font-size:12px;color:var(--ink-soft);margin:2px 0 12px;display:flex;align-items:center;flex-wrap:wrap;gap:6px}
+  .lcity .pill{background:var(--ink);color:#fff;border-radius:6px;padding:2px 7px}
+  .lrow{display:flex;gap:10px;font-size:13.5px;margin:7px 0;align-items:baseline}
+  .lrow .k{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-soft);flex:0 0 96px}
+  .lrow .v{color:var(--ink);flex:1}
+  .stats{display:flex;gap:18px;margin-top:12px;padding-top:12px;border-top:1px dashed var(--line);align-items:flex-start;flex-wrap:wrap}
+  .stat{font-family:'Space Mono',monospace}
+  .stat .n{font-size:18px;font-weight:700}
+  .stat.t .n{color:var(--temp)} .stat.p .n{color:var(--rain)}
+  .stat .l{font-size:10px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .reallink{font-family:'Space Mono',monospace;font-size:11.5px;color:var(--rain);text-decoration:none;border-bottom:1px solid #cfe6f3}
+  .reallink:hover{color:var(--ink)}
+  .stat.photo{margin-left:auto;text-align:right}
+  .footnote{font-size:11.5px;color:var(--ink-soft);text-align:center;margin:26px auto 0;max-width:56ch;font-family:'Space Mono',monospace;line-height:1.7}
+  @media (max-width:480px){
+    .options{grid-template-columns:1fr}
+    nav button{font-size:12.5px;padding:9px 2px}
+    .lcard .climo-card{border-right:0;border-bottom:1px solid var(--line)}
+    .stat.photo{margin-left:0;text-align:left;width:100%}
+  }
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+  :focus-visible{outline:3px solid #9ec9e6;outline-offset:2px;border-radius:8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow"><span class="dot"></span> Geografija 8 · Podnebja in rastje Amerike</div>
+    <h1>Klimo<span class="blue">grami</span></h1>
+    <p class="lede">Vadi prepoznavanje podnebij po klimogramih in po videzu pokrajine. Izberi celino.</p>
+    <div class="contbar" id="conts">
+      <button data-cont="juzna" class="active"><span class="em">🌎</span> Južna Amerika</button>
+      <button data-cont="severna"><span class="em">🌎</span> Severna Amerika</button>
+    </div>
+  </header>
+  <nav id="tabs">
+    <button data-mode="klimo" class="active">Klimogrami</button>
+    <button data-mode="slike">Slike</button>
+    <button data-mode="mesano">Mešano</button>
+    <button data-mode="ucenje">Učenje</button>
+  </nav>
+  <main id="app"></main>
+  <p class="footnote">Klimogrami so izrisani iz dejanskih podnebnih podatkov mest. Slike so prave fotografije (Wikimedia). Če se v Claudovem predogledu ne naložijo, prenesi datoteko in jo odpri v brskalniku (Firefox); v predogledu se namesto fotografije pokaže ilustracija istega bioma.</p>
+</div>
+
+<script>
+const MONTHS=['J','F','M','A','M','J','J','A','S','O','N','D'];
+const PH='https://commons.wikimedia.org/wiki/Special:FilePath/';
+
+/* ======== JUŽNA AMERIKA ======== */
+const JUZNA=[
+  {id:'ekvatorialno',name:'Ekvatorialno podnebje',city:'Iquitos',
+   region:'Amazonsko nižavje in Gvajansko višavje',
+   rastje:'Tropski deževni gozd; ob obalah mangrove',
+   znac:'Visoke temperature vse leto (~26 °C) in obilne padavine vsak mesec — ni sušnega obdobja.',
+   namig:'Skoraj ravna temperaturna črta visoko zgoraj, modri stolpci visoki čez vse leto.',
+   temp:[26.8,26.6,26.6,26.4,25.9,25.2,24.9,25.7,26.2,26.7,26.8,26.8],
+   precip:[273,245,311,297,273,187,168,117,154,183,203,263],
+   photo:PH+'Amazon_rainforest_treetops_in_Tena%2C_Ecuador.jpg'},
+  {id:'savansko',name:'Savansko podnebje',city:'Brasília',
+   region:'Brazilsko in Gvajansko višavje',
+   rastje:'Travniško rastje (savana) in gozd; ob obalah mangrove',
+   znac:'Visoke temperature; izmenjujeta se izrazita sušna in deževna doba.',
+   namig:'Topla temperatura, jasno sušno obdobje sredi leta (skoraj brez padavin) in deževno poletje.',
+   temp:[21.8,21.9,21.9,21.4,20.3,19.3,19.2,21.2,22.7,22.3,21.6,21.5],
+   precip:[241,215,189,124,39,9,6,13,51,172,238,249],
+   photo:PH+'Arvores_do_cerrado.jpg'},
+  {id:'puscavsko',name:'Puščavsko podnebje',city:'Antofagasta',
+   region:'Atakamska puščava',
+   rastje:'Redko rastje, prilagojeno pomanjkanju padavin',
+   znac:'Visoke oz. mile temperature, malo ali nič padavin (najbolj suho podnebje).',
+   namig:'Skoraj ni modrih stolpcev (brez padavin); blago valovita temperaturna črta.',
+   temp:[20.5,20.5,19.6,17.7,16.1,14.9,14.4,14.5,15.2,16.3,17.8,19.3],
+   precip:[0,0,0,0,1,3,5,1,1,0,0,0],
+   photo:PH+'Desierto_de_Atacama.JPG'},
+  {id:'gorsko',name:'Gorsko podnebje',city:'Altiplano (La Paz)',
+   region:'Planota Altiplano, Andi',
+   rastje:'Puhasto naravno rastje — šopi trave in nizko grmičevje',
+   znac:'Nizke temperature zaradi velike nadmorske višine; poletna deževna in zimska sušna doba.',
+   namig:'Nizka temperaturna črta (hladno) — modri stolpci poleti, suha zima.',
+   temp:[10.5,10.3,10.2,9.5,8.0,6.8,6.6,7.8,9.2,10.6,11.2,10.9],
+   precip:[114,99,67,33,13,6,8,16,28,42,51,90],
+   photo:PH+'ALTIPLANO%2C_BOLIVIA.jpg'},
+  {id:'subtropsko',name:'Vlažno subtropsko podnebje',city:'Rosario',
+   region:'Laplatsko nižavje',
+   rastje:'Naravno rastje pampe (gosta trava)',
+   znac:'Vroča poletja, mile zime in enakomerno razporejene padavine čez vse leto.',
+   namig:'Izrazit letni nihaj temperature (oblika doline), padavine so dokaj enakomerne.',
+   temp:[24.5,23.5,21.5,17.5,14.0,11.0,10.8,12.5,14.8,18.2,21.0,23.5],
+   precip:[88,96,118,86,52,30,31,38,60,108,96,108],
+   photo:PH+'Pampapaisaje.jpg'},
+  {id:'tundrsko',name:'Tundrsko podnebje',city:'Ushuaia',
+   region:'Skrajni jugozahodni del celine',
+   rastje:'Tundra in gozd',
+   znac:'Temperature se vse leto gibljejo med 0 in ~10 °C; nizka količina padavin.',
+   namig:'Nizka temperaturna črta (nikoli vroče) in nizki, dokaj enakomerni stolpci.',
+   temp:[9.4,9.2,7.8,5.8,3.5,1.8,1.4,2.4,4.3,6.3,7.7,8.8],
+   precip:[48,43,48,56,53,50,42,42,35,36,40,47],
+   photo:PH+'Ushuaia%2C_Tierra_del_Fuego.jpg'}
+];
+
+/* ======== SEVERNA AMERIKA ======== */
+const SEVERNA=[
+  {id:'na_tundrsko',name:'Tundrsko podnebje',city:'Barrow (Aljaska)',
+   region:'Skrajni severni del Aljaske in severovzhodni deli Kanade',
+   rastje:'Tundra (mahovi, lišaji, nizko grmičevje)',
+   znac:'Poleti temperature nad 0 °C (redko nad 10 °C), zime dolge in zelo mrzle. Padavin malo, večinoma sneg.',
+   namig:'Temperaturna črta je zelo nizka — poletni vrh komaj nad 0 °C, zima globoko pod 0 °C; padavin zelo malo.',
+   temp:[-25,-26,-24,-17,-6,2,5,4,0,-9,-18,-23],
+   precip:[3,3,4,4,5,10,18,22,14,9,6,5],
+   photo:PH+'Alaska_-tundra_landscape-11Aug2008.jpg'},
+  {id:'na_tajga',name:'Zmerno hladno podnebje',city:'Fort Simpson',
+   region:'Aljaska, osrednji in južni del Kanade, večji del Labradorja',
+   rastje:'Iglasti gozdovi (tajga)',
+   znac:'Dolge in mrzle zime, topla poletja; malo padavin, dokaj enakomerno čez leto z viškom poleti.',
+   namig:'Zelo mrzle zime in kratko toplo poletje; ozka temperaturna krivulja, nizki stolpci z viškom poleti.',
+   temp:[-25,-20,-12,0,9,15,17,15,8,0,-13,-22],
+   precip:[16,13,14,14,26,40,48,42,32,28,22,18],
+   photo:PH+'Taiga_Landscape_in_Canada.jpg'},
+  {id:'na_celinsko',name:'Celinsko podnebje',city:'Minneapolis',
+   region:'Osrednje nižavje, Velika jezera, velike planjave',
+   rastje:'Prerija (stepa); kjer je več padavin, listnati in mešani gozdovi (večinoma izkrčeno)',
+   znac:'Vroča poletja, mrzle zime; količina padavin se zmanjšuje z oddaljevanjem od morja (višek poleti).',
+   namig:'Velik letni razpon temperature (mrzla zima, vroče poletje) in stolpci padavin z viškom poleti.',
+   temp:[-9,-6,0,8,15,21,23,22,17,9,1,-7],
+   precip:[22,20,42,56,80,100,92,96,76,52,36,26],
+   photo:PH+'Great_Plains_P5310707.JPG'},
+  {id:'na_oceansko',name:'Oceansko podnebje',city:'Victoria',
+   region:'Obala Tihega oceana (severozahodni del celine)',
+   rastje:'Listnati, mešani in iglasti gozdovi (npr. sekvoje)',
+   znac:'Topla poletja in vlažne, mile zime; padavine enakomerno razporejene, z viškom pozimi.',
+   namig:'Majhen letni razpon temperature (nikoli zelo mrzlo ali vroče), padavine vse leto z viškom pozimi.',
+   temp:[4,5,6,9,12,14,16,16,14,10,6,4],
+   precip:[115,85,66,42,33,26,16,20,30,70,112,130],
+   photo:PH+'Hoh_Rainforest_-_Olympic_National_Park_-_Washington_State_%289780080331%29.jpg'},
+  {id:'na_sredozemsko',name:'Sredozemsko podnebje',city:'Los Angeles',
+   region:'Jugozahodni del celine (Kalifornija)',
+   rastje:'Sredozemsko (mediteransko) rastje — makija, grmičevje',
+   znac:'Vroča, suha poletja in mile, deževne zime; največ padavin pozimi.',
+   namig:'Blag temperaturni razpon; padavine le pozimi, poleti skoraj nič (krivulji se ne ujemata).',
+   temp:[14,14,15,16,18,20,23,23,22,20,17,14],
+   precip:[74,82,50,22,7,2,1,2,4,18,32,60],
+   photo:PH+'Coast_Range%2C_California_%2810753962983%29.jpg'},
+  {id:'na_puscavsko',name:'Puščavsko podnebje',city:'Phoenix',
+   region:'Velike planjave ob vznožju Skalnega gorovja, jugozahodni del ZDA',
+   rastje:'Redko rastje — šopi trav in kaktusi (npr. saguaro)',
+   znac:'Čez dan zelo visoke temperature, ponoči padejo tudi za 30 °C; padavin malo — kratkemu dežju lahko sledijo leta brez dežja.',
+   namig:'Zelo visok poletni vrh temperature (~35 °C) in skoraj brez padavin (zelo nizki stolpci).',
+   temp:[12,14,17,21,26,31,34,33,30,23,16,11],
+   precip:[20,20,22,8,3,1,18,30,22,18,18,24],
+   photo:PH+'2010_Sonoran_Desert_03.jpg'},
+  {id:'na_subtropsko',name:'Vlažno subtropsko podnebje',city:'Miami',
+   region:'Jugovzhodni del ZDA, Florida',
+   rastje:'Zimzeleni subtropski gozdovi; ob obali mangrove',
+   znac:'Vroča poletja, mile zime; padavine razporejene skozi vse leto z izrazitim viškom poleti.',
+   namig:'Toplo vse leto (nikoli mrzlo) in obilne padavine z velikim poletnim viškom.',
+   temp:[20,21,22,24,26,28,28,28,28,26,23,21],
+   precip:[45,50,60,80,160,225,160,210,240,155,75,50],
+   photo:PH+'Mangrove_trees_in_Everglades.JPG'}
+];
+const CONTINENTS={juzna:JUZNA,severna:SEVERNA};
+
+/* ---------- klimogram ---------- */
+const T_MIN=-30,T_MAX=35,P_MAX=320,PL=46,PR=334,PT=22,PB=210,SLOT=(PR-PL)/12,BARW=14;
+const tempY=t=>PB-((t-T_MIN)/(T_MAX-T_MIN))*(PB-PT);
+const precipY=p=>PB-((p)/(P_MAX))*(PB-PT);
+const cx=i=>PL+SLOT*(i+0.5);
+function climographSVG(c,showLabel){
+  let g='';
+  for(let t=T_MIN;t<=30;t+=10){const y=tempY(t);
+    g+=`<line x1="${PL}" y1="${y}" x2="${PR}" y2="${y}" stroke="#e3edf3"/>`;
+    g+=`<text x="${PL-7}" y="${y+3.5}" text-anchor="end" class="ax">${t}</text>`;}
+  for(let p=0;p<=P_MAX;p+=80){const y=precipY(p);g+=`<text x="${PR+7}" y="${y+3.5}" text-anchor="start" class="ax">${p}</text>`;}
+  c.precip.forEach((p,i)=>{const y=precipY(p),h=PB-y;if(h>0.5)g+=`<rect x="${cx(i)-BARW/2}" y="${y}" width="${BARW}" height="${h}" rx="1.5" fill="var(--rain-fill)" stroke="var(--rain)" stroke-width="0.6"/>`;});
+  const pts=c.temp.map((t,i)=>`${cx(i).toFixed(1)},${tempY(t).toFixed(1)}`).join(' ');
+  g+=`<polyline points="${pts}" fill="none" stroke="var(--temp)" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>`;
+  c.temp.forEach((t,i)=>{g+=`<circle cx="${cx(i)}" cy="${tempY(t)}" r="2.1" fill="#fff" stroke="var(--temp)" stroke-width="1.4"/>`;});
+  g+=`<line x1="${PL}" y1="${PT}" x2="${PL}" y2="${PB}" stroke="#9fb3c0"/><line x1="${PR}" y1="${PT}" x2="${PR}" y2="${PB}" stroke="#9fb3c0"/><line x1="${PL}" y1="${PB}" x2="${PR}" y2="${PB}" stroke="#9fb3c0"/>`;
+  MONTHS.forEach((m,i)=>{g+=`<text x="${cx(i)}" y="${PB+15}" text-anchor="middle" class="mo">${m}</text>`;});
+  g+=`<text x="${PL-7}" y="${PT-8}" text-anchor="end" class="unit" fill="var(--temp)">°C</text><text x="${PR+7}" y="${PT-8}" text-anchor="start" class="unit" fill="var(--rain)">mm</text>`;
+  const title=showLabel?`${c.city} — ${c.name}`:'klimogram · katero podnebje?';
+  return `<svg viewBox="0 0 380 232" role="img" aria-label="klimogram">
+    <style>.ax{font-family:'Space Mono',monospace;font-size:8.5px;fill:#7c8e9b}.mo{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;fill:#5a6b78}.unit{font-family:'Space Mono',monospace;font-size:9px;font-weight:700}.ti{font-family:'Space Mono',monospace;font-size:9.5px;fill:#516170;font-weight:700}line{stroke-width:1}</style>
+    <text x="190" y="14" text-anchor="middle" class="ti">${title}</text>${g}</svg>`;
+}
+
+/* ---------- pokrajine (ilustracije, rezerva) ---------- */
+function rnd(seed){return ()=>{seed=(seed*9301+49297)%233280;return seed/233280;};}
+function landscapeSVG(id){
+  const W=400,H=300,u=id;let s='';
+  if(id==='ekvatorialno'){
+    s+=`<defs><linearGradient id="s_${u}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#dfeef0"/><stop offset="1" stop-color="#eef6f2"/></linearGradient></defs><rect width="${W}" height="${H}" fill="url(#s_${u})"/>`;
+    const G=['#1c5230','#246138','#2c7644','#368a4f','#46a05d','#58b56c'],r=rnd(7);
+    for(let i=0;i<5;i++){s+=`<ellipse cx="${30+i*85+r()*20}" cy="${70+r()*20}" rx="34" ry="26" fill="${G[0]}"/>`;}
+    [{y:120,rx:42,ry:30,c:1},{y:165,rx:46,ry:34,c:2},{y:210,rx:52,ry:40,c:3},{y:255,rx:60,ry:46,c:4},{y:295,rx:66,ry:52,c:5}].forEach(o=>{for(let x=-10;x<W+40;x+=58){s+=`<ellipse cx="${x+r()*30}" cy="${o.y+r()*12}" rx="${o.rx}" ry="${o.ry}" fill="${G[o.c]}"/>`;}});
+    for(let i=0;i<3;i++)s+=`<ellipse cx="${60+i*150}" cy="${150+i*30}" rx="90" ry="14" fill="#fff" opacity="0.22"/>`;
+  } else if(id==='savansko'){
+    s+=`<defs><linearGradient id="s_${u}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7fb6dd"/><stop offset="0.7" stop-color="#cfe3ec"/><stop offset="1" stop-color="#f3e7c4"/></linearGradient><linearGradient id="g_${u}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d9b65e"/><stop offset="1" stop-color="#b6913c"/></linearGradient></defs><rect width="${W}" height="${H}" fill="url(#s_${u})"/>`;
+    s+=`<circle cx="330" cy="60" r="26" fill="#fdf3d2" opacity="0.85"/><path d="M0 185 Q120 168 240 184 T400 180 V210 H0 Z" fill="#caa863"/><rect y="195" width="${W}" height="105" fill="url(#g_${u})"/>`;
+    const ac=(x,sc)=>`<g transform="translate(${x},190) scale(${sc})"><rect x="-2" y="-22" width="4" height="34" fill="#5b4326"/><path d="M-30 -22 Q0 -40 30 -22 Q0 -30 -30 -22 Z" fill="#3f6b39"/><ellipse cx="0" cy="-26" rx="30" ry="9" fill="#477b3f"/></g>`;
+    s+=ac(110,1.5)+ac(300,1.2)+ac(210,0.9);const r=rnd(3);
+    for(let i=0;i<40;i++){const x=r()*W,y=210+r()*85;s+=`<path d="M${x} ${y} l-3 -8 M${x} ${y} l0 -10 M${x} ${y} l3 -8" stroke="#9c7d31" stroke-width="1"/>`;}
+  } else if(id==='puscavsko'){
+    s+=`<defs><linearGradient id="s_${u}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#bcd0d8"/><stop offset="1" stop-color="#e7ddc6"/></linearGradient></defs><rect width="${W}" height="${H}" fill="url(#s_${u})"/>`;
+    s+=`<path d="M0 150 L70 120 L140 145 L210 118 L300 142 L400 122 V170 H0 Z" fill="#c9b083"/><path d="M0 175 Q100 158 200 178 T400 172 V210 H0 Z" fill="#d8c193"/><path d="M0 205 Q120 188 250 208 T400 202 V250 H0 Z" fill="#cbb078"/><path d="M0 240 Q150 222 300 244 T400 238 V300 H0 Z" fill="#bb9d63"/>`;
+    const r=rnd(11);for(let i=0;i<14;i++)s+=`<ellipse cx="${r()*W}" cy="${200+r()*90}" rx="${3+r()*5}" ry="${2+r()*2}" fill="#7c6a47" opacity="0.7"/>`;
+  } else if(id==='gorsko'){
+    s+=`<defs><linearGradient id="s_${u}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5d93c4"/><stop offset="1" stop-color="#cfe0ec"/></linearGradient></defs><rect width="${W}" height="${H}" fill="url(#s_${u})"/>`;
+    s+=`<polygon points="0,150 60,90 120,140 190,80 260,150 330,95 400,150 400,200 0,200" fill="#8aa0b4"/><polygon points="60,90 44,112 78,112" fill="#fff"/><polygon points="190,80 172,108 210,108" fill="#fff"/><polygon points="330,95 314,118 348,118" fill="#fff"/>`;
+    s+=`<polygon points="0,185 90,135 170,180 250,130 340,180 400,150 400,210 0,210" fill="#6f8597"/><polygon points="90,135 76,158 106,158" fill="#f4f8fb"/><polygon points="250,130 234,156 268,156" fill="#f4f8fb"/><rect y="200" width="${W}" height="100" fill="#c2ad7e"/><path d="M0 205 Q200 195 400 206 V230 H0 Z" fill="#b49a66"/>`;
+    const r=rnd(5);for(let i=0;i<55;i++){const x=r()*W,y=212+r()*80;s+=`<path d="M${x} ${y} l-2 -7 M${x} ${y} l1 -8 M${x} ${y} l3 -6" stroke="#8f9a4e" stroke-width="1"/>`;}
+  } else if(id==='subtropsko'){
+    s+=`<defs><linearGradient id="s_${u}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6fb0e0"/><stop offset="1" stop-color="#d7ecf6"/></linearGradient><linearGradient id="g_${u}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#74b653"/><stop offset="1" stop-color="#4d8c37"/></linearGradient></defs><rect width="${W}" height="${H}" fill="url(#s_${u})"/>`;
+    s+=`<ellipse cx="100" cy="55" rx="46" ry="16" fill="#fff" opacity="0.9"/><ellipse cx="135" cy="48" rx="30" ry="13" fill="#fff" opacity="0.9"/><ellipse cx="300" cy="40" rx="40" ry="14" fill="#fff" opacity="0.85"/><rect y="165" width="${W}" height="135" fill="url(#g_${u})"/><path d="M0 165 Q200 156 400 165 V185 H0 Z" fill="#5fa247" opacity="0.6"/><path d="M0 210 Q200 202 400 212 V236 H0 Z" fill="#447e32" opacity="0.5"/>`;
+    const cow=(x,y,sc)=>`<g transform="translate(${x},${y}) scale(${sc})"><ellipse cx="0" cy="0" rx="9" ry="5" fill="#3a2f28"/><rect x="-7" y="3" width="2" height="5" fill="#3a2f28"/><rect x="5" y="3" width="2" height="5" fill="#3a2f28"/><ellipse cx="9" cy="-2" rx="3" ry="3" fill="#3a2f28"/></g>`;
+    s+=cow(120,205,1)+cow(150,212,0.9)+cow(250,200,1.1)+cow(285,214,0.85)+cow(200,230,1.2);
+  } else if(id==='tundrsko'){
+    s+=`<defs><linearGradient id="s_${u}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9db4c4"/><stop offset="1" stop-color="#d4dde2"/></linearGradient></defs><rect width="${W}" height="${H}" fill="url(#s_${u})"/>`;
+    s+=`<polygon points="0,140 70,70 140,135 210,60 290,135 360,80 400,130 400,175 0,175" fill="#566570"/><polygon points="70,70 52,100 90,100" fill="#eef3f5"/><polygon points="210,60 188,98 234,98" fill="#eef3f5"/><polygon points="360,80 342,108 380,108" fill="#eef3f5"/><rect y="165" width="${W}" height="135" fill="#9d6e44"/><path d="M0 170 Q200 160 400 172 V200 H0 Z" fill="#8a5d39"/><path d="M0 235 Q200 225 400 238 V300 H0 Z" fill="#7c5232"/><path d="M180 165 C150 200 250 215 200 250 C170 275 210 290 190 300 L230 300 C250 285 215 268 250 245 C290 218 200 205 235 170 Z" fill="#a9c6d4" opacity="0.92"/>`;
+    const r=rnd(9);for(let i=0;i<60;i++)s+=`<circle cx="${r()*W}" cy="${175+r()*120}" r="${1+r()*1.5}" fill="#6f4a2c" opacity="0.6"/>`;
+  }
+  /* ===== SEVERNA AMERIKA ===== */
+  else if(id==='na_tundrsko'){
+    s+=`<defs><linearGradient id="s_${u}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#aebfca"/><stop offset="1" stop-color="#d9e0e3"/></linearGradient></defs><rect width="${W}" height="${H}" fill="url(#s_${u})"/>`;
+    s+=`<polygon points="0,120 80,95 170,118 260,92 350,116 400,104 400,150 0,150" fill="#9fb0bc"/><polygon points="80,95 66,118 96,118" fill="#fff"/><polygon points="260,92 246,116 276,116" fill="#fff"/>`;
+    s+=`<rect y="140" width="${W}" height="160" fill="#a8743f"/><path d="M0 145 Q200 136 400 147 V175 H0 Z" fill="#92622f"/><path d="M0 210 Q200 200 400 212 V300 H0 Z" fill="#7d5330"/>`;
+    s+=`<ellipse cx="120" cy="195" rx="70" ry="14" fill="#9fc0cf"/><ellipse cx="300" cy="240" rx="90" ry="18" fill="#9fc0cf"/>`;
+    const r=rnd(4);for(let i=0;i<70;i++){const x=r()*W,y=150+r()*145;s+=`<circle cx="${x}" cy="${y}" r="${1+r()*1.4}" fill="#6b3f22" opacity="0.55"/>`;}
+  } else if(id==='na_tajga'){
+    s+=`<defs><linearGradient id="s_${u}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#86b6d8"/><stop offset="1" stop-color="#d2e6ef"/></linearGradient></defs><rect width="${W}" height="${H}" fill="url(#s_${u})"/>`;
+    s+=`<polygon points="0,120 110,80 230,120 340,85 400,110 400,150 0,150" fill="#7c93a4"/>`;
+    s+=`<rect y="150" width="${W}" height="40" fill="#5d86a0"/>`; // lake strip
+    const fir=(x,y,sc,col)=>`<g transform="translate(${x},${y}) scale(${sc})"><rect x="-1.4" y="0" width="2.8" height="9" fill="#5a4327"/><polygon points="0,-26 -9,2 9,2" fill="${col}"/><polygon points="0,-17 -7,6 7,6" fill="${col}"/></g>`;
+    const r=rnd(6);
+    for(let i=0;i<14;i++)s+=fir(20+i*28+r()*8,150,0.7,'#2f5236');           // far row
+    for(let i=0;i<12;i++)s+=fir(10+i*34+r()*10,200,1.05,'#2a5a35');         // mid row
+    for(let i=0;i<10;i++)s+=fir(8+i*42+r()*12,255,1.5,'#23502f');          // near row
+    s+=`<rect y="285" width="${W}" height="15" fill="#1f4a2c"/>`;
+  } else if(id==='na_celinsko'){
+    s+=`<defs><linearGradient id="s_${u}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5fa0d6"/><stop offset="1" stop-color="#cfe6f2"/></linearGradient><linearGradient id="g_${u}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#cdbb6a"/><stop offset="1" stop-color="#a8923f"/></linearGradient></defs><rect width="${W}" height="${H}" fill="url(#s_${u})"/>`;
+    s+=`<ellipse cx="110" cy="50" rx="50" ry="15" fill="#fff" opacity="0.85"/><ellipse cx="150" cy="42" rx="32" ry="12" fill="#fff" opacity="0.85"/>`;
+    // distant buttes
+    s+=`<path d="M150 150 L165 128 L200 128 L215 150 Z" fill="#b79a6a"/><path d="M250 150 L262 134 L292 134 L305 150 Z" fill="#a98e60"/>`;
+    s+=`<path d="M0 150 Q200 140 400 150 V165 H0 Z" fill="#b8a45e"/><rect y="160" width="${W}" height="140" fill="url(#g_${u})"/>`;
+    const r=rnd(8);for(let i=0;i<120;i++){const x=r()*W,y=170+r()*125;s+=`<path d="M${x} ${y} l-2 -9 M${x} ${y} l1 -11 M${x} ${y} l3 -8" stroke="#917a32" stroke-width="1"/>`;}
+  } else if(id==='na_oceansko'){
+    s+=`<defs><linearGradient id="s_${u}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#cfe0df"/><stop offset="1" stop-color="#e7f0ea"/></linearGradient></defs><rect width="${W}" height="${H}" fill="url(#s_${u})"/>`;
+    // misty layered green hills
+    s+=`<path d="M0 110 Q120 80 240 108 T400 100 V160 H0 Z" fill="#6f9e7a" opacity="0.7"/>`;
+    const fir=(x,y,sc,col)=>`<g transform="translate(${x},${y}) scale(${sc})"><rect x="-1.6" y="0" width="3.2" height="10" fill="#4a3a24"/><polygon points="0,-30 -10,4 10,4" fill="${col}"/><polygon points="0,-19 -8,8 8,8" fill="${col}"/></g>`;
+    const r=rnd(2);
+    for(let i=0;i<13;i++)s+=fir(16+i*30+r()*8,150,0.9,'#2f6b42');
+    s+=`<ellipse cx="120" cy="125" rx="100" ry="16" fill="#fff" opacity="0.3"/><ellipse cx="320" cy="140" rx="90" ry="14" fill="#fff" opacity="0.28"/>`;
+    // lush mossy foreground
+    const G=['#356f3f','#3f8049','#4e9456','#5ea862'];
+    [{y:200,c:0},{y:235,c:1},{y:270,c:2},{y:300,c:3}].forEach(o=>{for(let x=-10;x<W+40;x+=64){s+=`<ellipse cx="${x+r()*30}" cy="${o.y+r()*12}" rx="54" ry="40" fill="${G[o.c]}"/>`;}});
+    // big tree trunks
+    s+=`<rect x="70" y="150" width="10" height="150" fill="#5a4631"/><rect x="300" y="140" width="12" height="160" fill="#54422e"/>`;
+  } else if(id==='na_sredozemsko'){
+    s+=`<defs><linearGradient id="s_${u}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7bb6df"/><stop offset="1" stop-color="#dcecdf"/></linearGradient></defs><rect width="${W}" height="${H}" fill="url(#s_${u})"/>`;
+    // sea on the right behind hills
+    s+=`<rect x="0" y="120" width="${W}" height="40" fill="#3f9fb8"/>`;
+    // golden-dry hills
+    s+=`<path d="M0 160 Q100 120 220 150 Q320 172 400 138 V300 H0 Z" fill="#cdb46a"/><path d="M0 200 Q140 170 280 196 Q350 208 400 188 V300 H0 Z" fill="#bfa459"/>`;
+    // scattered dark shrubs / cypress
+    const sh=(x,y,sc)=>`<g transform="translate(${x},${y}) scale(${sc})"><ellipse cx="0" cy="0" rx="11" ry="8" fill="#5f7444"/></g>`;
+    const cyp=(x,y,sc)=>`<g transform="translate(${x},${y}) scale(${sc})"><ellipse cx="0" cy="-10" rx="5" ry="16" fill="#43603a"/></g>`;
+    const r=rnd(5);
+    for(let i=0;i<10;i++)s+=sh(30+i*38+r()*14,210+r()*60,0.7+r()*0.6);
+    s+=cyp(90,205,1.3)+cyp(250,235,1.5)+cyp(330,210,1.2);
+  } else if(id==='na_puscavsko'){
+    s+=`<defs><linearGradient id="s_${u}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8fb4cf"/><stop offset="1" stop-color="#e0d4bb"/></linearGradient></defs><rect width="${W}" height="${H}" fill="url(#s_${u})"/>`;
+    s+=`<path d="M0 175 L120 150 L240 172 L360 150 L400 165 V210 H0 Z" fill="#cBae7e"/>`.replace('cBae7e','cbae7e');
+    s+=`<rect y="200" width="${W}" height="100" fill="#c19a63"/><path d="M0 205 Q200 192 400 207 V235 H0 Z" fill="#b08850"/>`;
+    // saguaro cactus
+    const sag=(x,y,sc)=>`<g transform="translate(${x},${y}) scale(${sc})" fill="#3f6b3a" stroke="#2f5530" stroke-width="1">
+      <rect x="-7" y="-78" width="14" height="86" rx="7"/>
+      <path d="M-7 -45 q-22 0 -22 22 v12 q0 0 8 0 v-12 q0 -14 14 -14 z"/>
+      <path d="M7 -55 q22 0 22 22 v18 q0 0 -8 0 v-18 q0 -14 -14 -14 z"/></g>`;
+    s+=sag(80,205,1.05)+sag(200,212,1.35)+sag(300,205,0.85)+sag(355,214,1.1);
+    const r=rnd(13);for(let i=0;i<26;i++)s+=`<path d="M${r()*W} ${230+r()*60} l-3 -7 M0 0" stroke="#8a7338" stroke-width="1.4" transform="translate(0,0)"/>`;
+  } else if(id==='na_subtropsko'){
+    s+=`<defs><linearGradient id="s_${u}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9fc6d8"/><stop offset="1" stop-color="#cfe3df"/></linearGradient></defs><rect width="${W}" height="${H}" fill="url(#s_${u})"/>`;
+    // dense green mangrove canopy on top
+    const G=['#1f5a30','#276c39','#327f45'];
+    [{y:55,c:0},{y:95,c:1},{y:120,c:2}].forEach(o=>{for(let x=-10;x<W+40;x+=56){s+=`<ellipse cx="${x+(o.c*15)}" cy="${o.y}" rx="48" ry="36" fill="${G[o.c]}"/>`;}});
+    // water
+    s+=`<rect y="150" width="${W}" height="150" fill="#5e7e6b"/><rect y="150" width="${W}" height="150" fill="#3f5e50" opacity="0.25"/>`;
+    s+=`<rect y="150" width="${W}" height="6" fill="#9fb9a8" opacity="0.5"/>`;
+    // trunks + arching prop roots
+    const mg=(x)=>`<g stroke="#6b4e30" stroke-width="5" fill="none"><line x1="${x}" y1="120" x2="${x}" y2="170"/><path d="M${x} 158 q-16 6 -22 30"/><path d="M${x} 158 q16 6 22 30"/><path d="M${x} 150 q-26 10 -34 40"/><path d="M${x} 150 q26 10 34 40"/></g>`;
+    s+=mg(70)+mg(170)+mg(280)+mg(360);
+    // reflections
+    s+=`<rect x="60" y="172" width="6" height="34" fill="#6b4e30" opacity="0.3"/><rect x="270" y="172" width="6" height="34" fill="#6b4e30" opacity="0.3"/>`;
+  }
+  return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid slice" role="img" aria-label="pokrajina">${s}</svg>`;
+}
+
+/* ---------- stanje ---------- */
+let continent='juzna',mode='klimo',cur=null,kind='klimo',answered=false;
+let score={ok:0,n:0,streak:0};
+const app=document.getElementById('app');
+const pool=()=>CONTINENTS[continent];
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
+function hookPhotoFallback(root){
+  root.querySelectorAll('.photo-card img,.lphoto img').forEach(img=>{
+    const fail=()=>{const b=img.closest('[data-id]');if(b){b.innerHTML=landscapeSVG(b.dataset.id);}};
+    img.addEventListener('error',fail,{once:true});
+    if(img.complete&&img.naturalWidth===0)fail();
+  });
+}
+function pickQuestion(){
+  kind = mode==='klimo'?'klimo' : mode==='slike'?'slika' : (Math.random()<0.5?'klimo':'slika');
+  const p=pool(); cur=p[Math.floor(Math.random()*p.length)]; answered=false;
+}
+function renderQuiz(){
+  pickQuestion();
+  const opts=shuffle(pool());
+  const figure = kind==='klimo'
+    ? `<div class="climo-card">${climographSVG(cur,false)}</div>`
+    : `<div class="photo-card" data-id="${cur.id}"><img src="${cur.photo}" alt="pokrajina" referrerpolicy="no-referrer"></div>`;
+  app.innerHTML=`
+    <section class="stage">
+      <div class="stage-head">
+        <span>${kind==='klimo'?'KLIMOGRAM':'POKRAJINA'}</span>
+        <span class="scoreboard"><span>pravilno <b>${score.ok}</b>/<b>${score.n}</b></span><span class="streak">niz ${score.streak}</span></span>
+      </div>
+      <p class="prompt">Katero podnebje prikazuje <span>${kind==='klimo'?'ta klimogram':'ta pokrajina'}?</span></p>
+      <div class="figure">${figure}</div>
+      <div class="reveal-name" id="reveal"></div>
+      <div class="options" id="opts">
+        ${opts.map((c,i)=>`<button class="opt" data-id="${c.id}"><span class="num">${i+1}</span><span>${c.name}</span></button>`).join('')}
+      </div>
+      <div class="feedback" id="fb"><div class="verdict" id="verdict"></div><p class="why" id="why"></p></div>
+      <div class="stage-foot"><button class="next" id="next" disabled>Naprej <span>→</span></button></div>
+    </section>
+    <p class="hintkeys">tipke <kbd>1</kbd>–<kbd>${pool().length}</kbd> za odgovor · <kbd>↵</kbd> naprej</p>`;
+  document.querySelectorAll('#opts .opt').forEach(b=>b.addEventListener('click',()=>choose(b.dataset.id)));
+  document.getElementById('next').addEventListener('click',renderQuiz);
+  hookPhotoFallback(app);
+}
+function choose(id){
+  if(answered)return;answered=true;
+  document.querySelectorAll('#opts .opt').forEach(b=>{b.disabled=true;
+    if(b.dataset.id===cur.id)b.classList.add('correct');
+    if(b.dataset.id===id&&id!==cur.id)b.classList.add('wrong');});
+  const ok=id===cur.id;score.n++;
+  if(ok){score.ok++;score.streak++;}else score.streak=0;
+  document.getElementById('reveal').innerHTML=`${cur.city} · <b>${cur.name}</b>`;
+  const v=document.getElementById('verdict');v.textContent=ok?'✓ Pravilno':'✗ Ni pravilno';v.className='verdict '+(ok?'ok':'no');
+  document.getElementById('why').innerHTML=`<b>${cur.name}</b> — ${cur.namig}<br>Območje: ${cur.region}. Rastje: ${cur.rastje.toLowerCase()}.`;
+  document.getElementById('fb').classList.add('show');
+  const nx=document.getElementById('next');nx.disabled=false;nx.focus();
+  const sb=document.querySelector('.scoreboard');
+  if(sb)sb.innerHTML=`<span>pravilno <b>${score.ok}</b>/<b>${score.n}</b></span><span class="streak">niz ${score.streak}</span>`;
+}
+function renderLearn(){
+  app.innerHTML=`<div class="learn">${pool().map(c=>{
+    const avg=(c.temp.reduce((a,b)=>a+b,0)/12).toFixed(1);
+    const tot=c.precip.reduce((a,b)=>a+b,0);
+    return `<article class="lcard">
+      <div class="lcard-top">
+        <div class="climo-card">${climographSVG(c,true)}</div>
+        <div class="lphoto" data-id="${c.id}"><img src="${c.photo}" alt="${c.rastje}" loading="lazy" referrerpolicy="no-referrer"></div>
+      </div>
+      <div class="lbody">
+        <h2 class="lname">${c.name}</h2>
+        <div class="lcity"><span class="pill">${c.city}</span><span>${c.region}</span></div>
+        <div class="lrow"><span class="k">Značilnosti</span><span class="v">${c.znac}</span></div>
+        <div class="lrow"><span class="k">Rastje</span><span class="v">${c.rastje}</span></div>
+        <div class="lrow"><span class="k">Prepoznaš po</span><span class="v">${c.namig}</span></div>
+        <div class="stats">
+          <span class="stat t"><span class="n">${avg} °C</span><br><span class="l">povpr. temp.</span></span>
+          <span class="stat p"><span class="n">${tot} mm</span><br><span class="l">letne padavine</span></span>
+          <span class="stat photo"><a class="reallink" href="${c.photo}" target="_blank" rel="noopener">prava fotografija ↗</a></span>
+        </div>
+      </div>
+    </article>`;}).join('')}</div>`;
+  hookPhotoFallback(app);
+}
+function render(){ if(mode==='ucenje')renderLearn(); else renderQuiz(); }
+function setMode(m){mode=m;document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('active',b.dataset.mode===m));render();}
+function setCont(c){continent=c;document.querySelectorAll('#conts button').forEach(b=>b.classList.toggle('active',b.dataset.cont===c));render();}
+document.querySelectorAll('#tabs button').forEach(b=>b.addEventListener('click',()=>setMode(b.dataset.mode)));
+document.querySelectorAll('#conts button').forEach(b=>b.addEventListener('click',()=>setCont(b.dataset.cont)));
+document.addEventListener('keydown',e=>{
+  if(mode==='ucenje')return;
+  const n=pool().length;
+  if(e.key>='1'&&e.key<=String(n)){const btns=document.querySelectorAll('#opts .opt');const i=+e.key-1;if(btns[i]&&!answered)btns[i].click();}
+  else if(e.key==='Enter'||e.key===' '){const nx=document.getElementById('next');if(nx&&!nx.disabled){e.preventDefault();nx.click();}}
+});
+setMode('klimo');
+</script>
+</body>
+</html>
