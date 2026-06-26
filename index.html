@@ -163,7 +163,7 @@ const JUZNA=[
    namig:'Skoraj ni modrih stolpcev (brez padavin); blago valovita temperaturna črta.',
    temp:[20.5,20.5,19.6,17.7,16.1,14.9,14.4,14.5,15.2,16.3,17.8,19.3],
    precip:[0,0,0,0,1,3,5,1,1,0,0,0],
-   photo:PH+'Desierto_de_Atacama.JPG'},
+   photo:PH+'El_Valle_de_la_Luna_%28Chile%29.jpg'},
   {id:'gorsko',name:'Gorsko podnebje',city:'Altiplano (La Paz)',
    region:'Planota Altiplano, Andi',
    rastje:'Puhasto naravno rastje — šopi trave in nizko grmičevje',
@@ -171,7 +171,7 @@ const JUZNA=[
    namig:'Nizka temperaturna črta (hladno) — modri stolpci poleti, suha zima.',
    temp:[10.5,10.3,10.2,9.5,8.0,6.8,6.6,7.8,9.2,10.6,11.2,10.9],
    precip:[114,99,67,33,13,6,8,16,28,42,51,90],
-   photo:PH+'ALTIPLANO%2C_BOLIVIA.jpg'},
+   photo:PH+'Colors_of_the_Chilean_Altiplano_%5Eexplore_-_Flickr_-_Carlos_Eduardo_Joos.jpg'},
   {id:'subtropsko',name:'Vlažno subtropsko podnebje',city:'Rosario',
    region:'Laplatsko nižavje',
    rastje:'Naravno rastje pampe (gosta trava)',
@@ -187,7 +187,7 @@ const JUZNA=[
    namig:'Nizka temperaturna črta (nikoli vroče) in nizki, dokaj enakomerni stolpci.',
    temp:[9.4,9.2,7.8,5.8,3.5,1.8,1.4,2.4,4.3,6.3,7.7,8.8],
    precip:[48,43,48,56,53,50,42,42,35,36,40,47],
-   photo:PH+'Ushuaia%2C_Tierra_del_Fuego.jpg'}
+   photo:PH+'Tierra_del_Fuego_Steppe_%283305934587%29.jpg'}
 ];
 
 /* ======== SEVERNA AMERIKA ======== */
@@ -231,7 +231,7 @@ const SEVERNA=[
    namig:'Blag temperaturni razpon; padavine le pozimi, poleti skoraj nič (krivulji se ne ujemata).',
    temp:[14,14,15,16,18,20,23,23,22,20,17,14],
    precip:[74,82,50,22,7,2,1,2,4,18,32,60],
-   photo:PH+'Coast_Range%2C_California_%2810753962983%29.jpg'},
+   photo:PH+'Sunol_Flag_Hill_and_Valley.jpg'},
   {id:'na_puscavsko',name:'Puščavsko podnebje',city:'Phoenix',
    region:'Velike planjave ob vznožju Skalnega gorovja, jugozahodni del ZDA',
    rastje:'Redko rastje — šopi trav in kaktusi (npr. saguaro)',
@@ -390,6 +390,12 @@ function landscapeSVG(id){
 /* ---------- stanje ---------- */
 let continent='juzna',mode='klimo',cur=null,kind='klimo',answered=false;
 let score={ok:0,n:0,streak:0};
+let deck=[];                         // premešan "kupček" prihodnjih vprašanj (niz)
+function refillDeck(prevId){
+  deck=shuffle(pool());
+  // prepreči, da bi se isto podnebje ponovilo takoj na meji kupčka
+  if(prevId&&deck.length>1&&deck[0].id===prevId){deck.push(deck.shift());}
+}
 const app=document.getElementById('app');
 const pool=()=>CONTINENTS[continent];
 const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
@@ -402,7 +408,8 @@ function hookPhotoFallback(root){
 }
 function pickQuestion(){
   kind = mode==='klimo'?'klimo' : mode==='slike'?'slika' : (Math.random()<0.5?'klimo':'slika');
-  const p=pool(); cur=p[Math.floor(Math.random()*p.length)]; answered=false;
+  if(deck.length===0)refillDeck(cur?cur.id:null);   // vsako podnebje pride na vrsto enkrat, v naključnem vrstnem redu
+  cur=deck.shift(); answered=false;
 }
 function renderQuiz(){
   pickQuestion();
@@ -471,7 +478,7 @@ function renderLearn(){
 }
 function render(){ if(mode==='ucenje')renderLearn(); else renderQuiz(); }
 function setMode(m){mode=m;document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('active',b.dataset.mode===m));render();}
-function setCont(c){continent=c;document.querySelectorAll('#conts button').forEach(b=>b.classList.toggle('active',b.dataset.cont===c));render();}
+function setCont(c){continent=c;deck=[];document.querySelectorAll('#conts button').forEach(b=>b.classList.toggle('active',b.dataset.cont===c));render();}
 document.querySelectorAll('#tabs button').forEach(b=>b.addEventListener('click',()=>setMode(b.dataset.mode)));
 document.querySelectorAll('#conts button').forEach(b=>b.addEventListener('click',()=>setCont(b.dataset.cont)));
 document.addEventListener('keydown',e=>{
